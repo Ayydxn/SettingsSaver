@@ -1,0 +1,31 @@
+{
+  "schemaVersion": 1,
+  "id": "settings_saver",
+  "version": "${version}",
+  "name": "Settings Saver",
+  "description": "A Minecraft mod which automatically backups all of your game and mod settings to your Google Drive.",
+  "authors": [
+    "Ayydan"
+  ],
+  "contact": {
+    "homepage": "https://github.com/Ayydxn/SettingsSaver",
+    "sources": "https://github.com/Ayydxn/SettingsSaver",
+    "issues": "https://github.com/Ayydxn/SettingsSaver/issues"
+  },
+  "license": "LGPL-3.0",
+  "icon": "assets/settings_saver/icon.png",
+  "environment": "client",
+  "entrypoints": {
+    "client": [
+      "me.ayydan.settings_saver.SettingsSaverClientMod"
+    ]
+  },
+  "mixins": [
+    "settings_saver.mixins.json"
+  ],
+  "depends": {
+    "fabricloader": ">=${loader_version}",
+    "fabric": "*",
+    "minecraft": "${minecraft_version}"
+  }
+}
