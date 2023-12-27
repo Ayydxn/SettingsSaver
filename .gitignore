@@ -31,3 +31,6 @@ hs_err_*.log
 replay_*.log
 *.hprof
 *.jfr
+
+# Developer Secrets
+src/main/resources/assets/settings_saver/config/*.json

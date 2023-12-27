@@ -21,6 +21,8 @@ repositories {
         name 'Quilt'
         url 'https://maven.quiltmc.org/repository/release'
     }
+
+    mavenCentral()
 }
 
 dependencies {
@@ -31,6 +33,24 @@ dependencies {
 
     // Fabric API. This is technically optional, but you probably want it anyway.
     modImplementation "net.fabricmc.fabric-api:fabric-api:${project.fabric_version}"
+
+    // Google API
+    implementation include("com.google.api-client:google-api-client:${project.google_api_client_version}")
+    implementation include("com.google.apis:google-api-services-drive:${project.google_api_services_drive_version}")
+    implementation include("com.google.auth:google-auth-library-oauth2-http:${project.google_auth_library_version}")
+    implementation include("com.google.http-client:google-http-client:${project.google_http_client_version}")
+    implementation include("com.google.http-client:google-http-client-gson:${project.google_http_client_version}")
+    implementation include("com.google.oauth-client:google-oauth-client:${project.google_oauth_client_version}")
+    implementation include("com.google.oauth-client:google-oauth-client-java6:${project.google_oauth_client_version}")
+    implementation include("com.google.oauth-client:google-oauth-client-jetty:${project.google_oauth_client_version}")
+
+    // Google API Dependencies
+    implementation include("io.opencensus:opencensus-api:${project.opencensus_version}")
+    implementation include("io.opencensus:opencensus-contrib-http-util:${project.opencensus_version}")
+    implementation include("io.grpc:grpc-context:${project.grcp_version}")
+
+    // Util Libraries
+    implementation include("net.lingala.zip4j:zip4j:${project.zip4j_version}")
 }
 
 processResources {
