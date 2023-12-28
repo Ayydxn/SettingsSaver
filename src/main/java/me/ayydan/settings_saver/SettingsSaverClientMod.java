@@ -1,5 +1,6 @@
 package me.ayydan.settings_saver;
 
+import com.google.api.services.drive.Drive;
 import me.ayydan.settings_saver.config.GameConfigManager;
 import me.ayydan.settings_saver.google.GoogleAPIGlobals;
 import me.ayydan.settings_saver.google.GoogleAPIManager;
@@ -9,7 +10,6 @@ import net.fabricmc.api.Environment;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientLifecycleEvents;
 import net.fabricmc.loader.api.FabricLoader;
 import net.fabricmc.loader.api.ModContainer;
-import net.minecraft.client.MinecraftClient;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.core.Logger;
 
@@ -58,8 +58,17 @@ public class SettingsSaverClientMod implements ClientModInitializer
 
         ClientLifecycleEvents.CLIENT_STARTED.register((client) ->
         {
+            Drive googleDriveService = GoogleAPIManager.getInstance().getDriveService();
+
             this.gameConfigManager = new GameConfigManager(client.options);
-            this.gameConfigManager.saveToGoogleDrive(GoogleAPIManager.getInstance().getDriveService());
+            if (this.gameConfigManager.doesConfigZipFileExist(googleDriveService))
+            {
+                this.gameConfigManager.downloadFromGoogleDrive(googleDriveService);
+            }
+            else
+            {
+                this.gameConfigManager.saveToGoogleDrive(googleDriveService);
+            }
         });
     }
 

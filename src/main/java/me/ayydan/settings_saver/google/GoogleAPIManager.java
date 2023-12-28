@@ -12,6 +12,7 @@ import com.google.api.services.drive.Drive;
 import com.google.api.services.drive.model.File;
 import com.google.api.services.drive.model.FileList;
 import me.ayydan.settings_saver.SettingsSaverClientMod;
+import net.minecraft.util.Util;
 
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -69,7 +70,7 @@ public class GoogleAPIManager
                 .setPort(8888)
                 .build();
 
-        return new AuthorizationCodeInstalledApp(authorizationCodeFlow, localServerReceiver, new AuthorizationCodeInstalledApp.DefaultBrowser())
+        return new AuthorizationCodeInstalledApp(authorizationCodeFlow, localServerReceiver, (url) -> Util.getOperatingSystem().open(url))
                 .authorize("user");
     }
 
