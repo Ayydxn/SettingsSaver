@@ -1,8 +1,8 @@
 package me.ayydan.settings_saver;
 
 import com.google.api.services.drive.Drive;
-import me.ayydan.settings_saver.google.GoogleAPIGlobals;
 import me.ayydan.settings_saver.google.GoogleAPIManager;
+import me.ayydan.settings_saver.SettingsSaverConfigManager;
 import net.fabricmc.api.ClientModInitializer;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
@@ -12,10 +12,6 @@ import net.fabricmc.loader.api.ModContainer;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.core.Logger;
 
-import java.io.IOException;
-import java.nio.file.Files;
-import java.security.GeneralSecurityException;
-
 @Environment(EnvType.CLIENT)
 public class SettingsSaverClientMod implements ClientModInitializer
 {
@@ -24,7 +20,7 @@ public class SettingsSaverClientMod implements ClientModInitializer
     private static final Logger LOGGER = (Logger) LogManager.getLogger("Settings Saver");
     private static final String MOD_ID = "settings_saver";
 
-    private SettingsSaverConfigManager settingsSaverConfigManager;
+    public SettingsSaverConfigManager settingsSaverConfigManager;
 
     private String settingsSaverVersion;
 
@@ -41,34 +37,8 @@ public class SettingsSaverClientMod implements ClientModInitializer
 
         LOGGER.info("Initializing Settings Saver... (Version: {})", this.settingsSaverVersion);
 
-        try
-        {
-            if (!Files.exists(GoogleAPIGlobals.AUTH_TOKENS_DIRECTORY))
-                Files.createDirectories(GoogleAPIGlobals.AUTH_TOKENS_DIRECTORY);
-
-            GoogleAPIManager.initialize();
-        }
-        catch (IOException | GeneralSecurityException exception)
-        {
-            SettingsSaverClientMod.getLogger().error("Failed to create Google auth tokens directory!");
-
-            exception.printStackTrace();
-        }
-
-        ClientLifecycleEvents.CLIENT_STARTED.register((client) ->
-        {
-            Drive googleDriveService = GoogleAPIManager.getInstance().getDriveService();
-
-            this.settingsSaverConfigManager = new SettingsSaverConfigManager(client.options);
-            if (this.settingsSaverConfigManager.doesConfigZipFileExist(googleDriveService))
-            {
-                this.settingsSaverConfigManager.downloadFromGoogleDrive(googleDriveService);
-            }
-            else
-            {
-                this.settingsSaverConfigManager.saveToGoogleDrive(googleDriveService);
-            }
-        });
+        ClientLifecycleEvents.CLIENT_STOPPING.register((client) ->
+                this.settingsSaverConfigManager.saveToGoogleDrive(GoogleAPIManager.getInstance().getDriveService()));
     }
 
     public static SettingsSaverClientMod getInstance()

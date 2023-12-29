@@ -10,6 +10,7 @@ import me.ayydan.settings_saver.google.GoogleAPIManager;
 import me.ayydan.settings_saver.google.GoogleAPIUtils;
 import net.fabricmc.loader.api.FabricLoader;
 import net.lingala.zip4j.ZipFile;
+import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.option.GameOptions;
 
 import java.io.ByteArrayOutputStream;
@@ -55,7 +56,7 @@ public class SettingsSaverConfigManager
         }
     }
 
-    public void downloadFromGoogleDrive(Drive googleDriveService)
+    public void downloadFromGoogleDrive(Drive googleDriveService, boolean immediatelyLoad)
     {
         if (this.configZipFileID.isEmpty())
             throw new IllegalStateException("The config ZIP file cannot be downloaded if it's Drive ID is empty/unknown!");
@@ -66,12 +67,32 @@ public class SettingsSaverConfigManager
             if (byteArrayOutputStream == null)
                 throw new FailedOperationException("Failed to download the config ZIP file!", FailedOperationException.OperationType.GoogleAPI);
 
-            Files.write(Path.of(FabricLoader.getInstance().getGameDir() + "/config.zip"), byteArrayOutputStream.toByteArray());
+            Path tempConfigZipFile = Files.write(SettingsSaverGlobals.TEMP_CONFIG_ZIP_FILE_PATH, byteArrayOutputStream.toByteArray());
+
+            if (immediatelyLoad)
+                this.loadConfig(tempConfigZipFile.toFile());
         }
         catch (IOException exception)
         {
             exception.printStackTrace();
         }
+    }
+
+    /**
+     *
+     */
+    public void loadConfig(java.io.File configZipFile)
+    {
+        try (ZipFile zipFile = new ZipFile(configZipFile))
+        {
+            zipFile.extractAll(FabricLoader.getInstance().getGameDir().toString());
+        }
+        catch (IOException exception)
+        {
+            exception.printStackTrace();
+        }
+
+        MinecraftClient.getInstance().options.load();
     }
 
     public boolean doesConfigZipFileExist(Drive googleDriveService)
