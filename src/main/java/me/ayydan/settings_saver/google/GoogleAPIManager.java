@@ -25,7 +25,7 @@ public class GoogleAPIManager
     private static GoogleAPIManager INSTANCE;
 
     private final Drive googleDriveService;
-    private final String configSaveFolderName = "Ayydan's Minecraft Settings Saver";
+    private final String configSaveFolderName;
 
     private String configSaveFolderID;
 
@@ -34,6 +34,8 @@ public class GoogleAPIManager
         this.googleDriveService = new Drive.Builder(GoogleNetHttpTransport.newTrustedTransport(), GoogleAPIGlobals.GSON_FACTORY, this.createCredentials())
                 .setApplicationName(GoogleAPIGlobals.APPLICATION_NAME)
                 .build();
+
+        this.configSaveFolderName = "Ayydan's Minecraft Settings Saver";
 
         this.createConfigSaveFolder();
     }

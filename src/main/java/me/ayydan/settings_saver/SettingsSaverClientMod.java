@@ -1,7 +1,6 @@
 package me.ayydan.settings_saver;
 
 import com.google.api.services.drive.Drive;
-import me.ayydan.settings_saver.config.GameConfigManager;
 import me.ayydan.settings_saver.google.GoogleAPIGlobals;
 import me.ayydan.settings_saver.google.GoogleAPIManager;
 import net.fabricmc.api.ClientModInitializer;
@@ -25,7 +24,7 @@ public class SettingsSaverClientMod implements ClientModInitializer
     private static final Logger LOGGER = (Logger) LogManager.getLogger("Settings Saver");
     private static final String MOD_ID = "settings_saver";
 
-    private GameConfigManager gameConfigManager;
+    private SettingsSaverConfigManager settingsSaverConfigManager;
 
     private String settingsSaverVersion;
 
@@ -60,14 +59,14 @@ public class SettingsSaverClientMod implements ClientModInitializer
         {
             Drive googleDriveService = GoogleAPIManager.getInstance().getDriveService();
 
-            this.gameConfigManager = new GameConfigManager(client.options);
-            if (this.gameConfigManager.doesConfigZipFileExist(googleDriveService))
+            this.settingsSaverConfigManager = new SettingsSaverConfigManager(client.options);
+            if (this.settingsSaverConfigManager.doesConfigZipFileExist(googleDriveService))
             {
-                this.gameConfigManager.downloadFromGoogleDrive(googleDriveService);
+                this.settingsSaverConfigManager.downloadFromGoogleDrive(googleDriveService);
             }
             else
             {
-                this.gameConfigManager.saveToGoogleDrive(googleDriveService);
+                this.settingsSaverConfigManager.saveToGoogleDrive(googleDriveService);
             }
         });
     }
@@ -82,9 +81,9 @@ public class SettingsSaverClientMod implements ClientModInitializer
         return LOGGER;
     }
 
-    public GameConfigManager getGameConfigManager()
+    public SettingsSaverConfigManager getGameConfigManager()
     {
-        return this.gameConfigManager;
+        return this.settingsSaverConfigManager;
     }
 
     public String getVersion()

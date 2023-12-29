@@ -1,12 +1,11 @@
-package me.ayydan.settings_saver.config;
+package me.ayydan.settings_saver;
 
 import com.google.api.client.http.FileContent;
 import com.google.api.client.util.Objects;
 import com.google.api.services.drive.Drive;
 import com.google.api.services.drive.model.File;
 import com.google.api.services.drive.model.FileList;
-import me.ayydan.settings_saver.SettingsSaverClientMod;
-import me.ayydan.settings_saver.SettingsSaverGlobals;
+import me.ayydan.settings_saver.exceptions.FailedOperationException;
 import me.ayydan.settings_saver.google.GoogleAPIManager;
 import me.ayydan.settings_saver.google.GoogleAPIUtils;
 import net.fabricmc.loader.api.FabricLoader;
@@ -19,16 +18,15 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Collections;
 
-public class GameConfigManager
+public class SettingsSaverConfigManager
 {
     private final Path fabricConfigDirectory;
     private final java.io.File minecraftOptionsFile;
     private final String configSaveFolderID;
 
-    private File configZipFile;
     private String configZipFileID;
 
-    public GameConfigManager(GameOptions minecraftGameOptions)
+    public SettingsSaverConfigManager(GameOptions minecraftGameOptions)
     {
         this.fabricConfigDirectory = FabricLoader.getInstance().getConfigDir();
         this.minecraftOptionsFile = minecraftGameOptions.getOptionsFile();
@@ -48,7 +46,8 @@ public class GameConfigManager
 
             this.uploadConfigZip(googleDriveService, configZipFile.getFile(), configSaveFolderID);
 
-            configZipFile.getFile().delete();
+            if (!configZipFile.getFile().delete())
+                throw new IOException("Failed to delete temporary config ZIP file!");
         }
         catch (IOException exception)
         {
@@ -65,7 +64,7 @@ public class GameConfigManager
         {
             ByteArrayOutputStream byteArrayOutputStream = GoogleAPIUtils.downloadZipFile(googleDriveService, this.configZipFileID);
             if (byteArrayOutputStream == null)
-                throw new NullPointerException("Failed to download the config ZIP file!");
+                throw new FailedOperationException("Failed to download the config ZIP file!", FailedOperationException.OperationType.GoogleAPI);
 
             Files.write(Path.of(FabricLoader.getInstance().getGameDir() + "/config.zip"), byteArrayOutputStream.toByteArray());
         }
@@ -90,7 +89,6 @@ public class GameConfigManager
                 if (!Objects.equal(file.getName(), SettingsSaverGlobals.CONFIG_ZIP_FILE_NAME))
                     continue;
 
-                this.configZipFile = file;
                 this.configZipFileID = file.getId();
 
                 doesConfigZipFileAlreadyExist = true;
@@ -122,7 +120,6 @@ public class GameConfigManager
                         .setAddParents(configSaveFolderID)
                         .execute();
 
-                this.configZipFile = updatedConfigZipFile;
                 this.configZipFileID = updatedConfigZipFile.getId();
             }
             else
@@ -133,7 +130,6 @@ public class GameConfigManager
                         .setFields("id")
                         .execute();
 
-                this.configZipFile = createdConfigZipFile;
                 this.configZipFileID = createdConfigZipFile.getId();
             }
         }
